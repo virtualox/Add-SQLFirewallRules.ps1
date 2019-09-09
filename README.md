@@ -1,2 +1,2 @@
 # SQLFirewall.ps1
-Script to open Windows Firewall Ports for SQL Server
+Replacement of the script provided in MS KB “[How to open the firewall port for SQL Server on Windows Server 2008](https://support.microsoft.com/en-us/help/968872/how-to-open-the-firewall-port-for-sql-server-on-windows-server-2008 "How to open the firewall port for SQL Server on Windows Server 2008")” which uses the netsh command to open the Windows firewall ports for SQL Server. Because in future versions of Windows, Microsoft might remove the Netsh functionality for Windows Firewall with Advanced Security. Microsoft also recommends that you transition to Windows PowerShell if you currently use netsh to configure and manage Windows Firewall with Advanced Security.
