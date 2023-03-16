@@ -1,32 +1,54 @@
-Write-host ========= SQL Server Ports ===================
-Write-host Enabling SQLServer default instance port 1433
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 1433" –Direction inbound –LocalPort 1433 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 1433" –Direction outbound –LocalPort 1433 -Protocol TCP -Action Allow
-Write-host Enabling Dedicated Admin Connection port 1434
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 1434" -Direction inbound –LocalPort 1434 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 1434" -Direction outbound –LocalPort 1434 -Protocol TCP -Action Allow
-Write-host Enabling conventional SQL Server Service Broker port 4022
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 4022" -Direction inbound –LocalPort 4022 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 4022" -Direction outbound –LocalPort 4022 -Protocol TCP -Action Allow
-Write-host Enabling Transact-SQL Debugger/RPC port 135
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 135" -Direction inbound –LocalPort 135 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 135" -Direction outbound –LocalPort 135 -Protocol TCP -Action Allow
+function Add-FirewallRule {
+    param (
+        [string]$DisplayName,
+        [int]$LocalPort,
+        [string]$Protocol = "TCP"
+    )
 
-Write-host ========= Analysis Services Ports ==============
-Write-host Enabling SSAS Default Instance port 2383
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 2383" -Direction inbound –LocalPort 2383 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 2383" -Direction outbound –LocalPort 2383 -Protocol TCP -Action Allow
-Write-host Enabling SQL Server Browser Service port 2382
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 2382" -Direction inbound –LocalPort 2382 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 2382" -Direction outbound –LocalPort 2382 -Protocol TCP -Action Allow
+    New-NetFirewallRule -DisplayName "Allow inbound $Protocol Port $LocalPort" -Direction Inbound -LocalPort $LocalPort -Protocol $Protocol -Action Allow
+    New-NetFirewallRule -DisplayName "Allow outbound $Protocol Port $LocalPort" -Direction Outbound -LocalPort $LocalPort -Protocol $Protocol -Action Allow
+    Write-Host "Enabled $DisplayName port $LocalPort" -ForegroundColor Green
+}
 
-Write-host ========= Misc Applications ==============
-Write-host Enabling HTTP port 80
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 80" -Direction inbound –LocalPort 80 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 80" -Direction outbound –LocalPort 80 -Protocol TCP -Action Allow
-Write-host Enabling SSL port 443
-New-NetFirewallRule -DisplayName "Allow inbound TCP Port 443" -Direction inbound –LocalPort 443 -Protocol TCP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound TCP Port 443" -Direction outbound –LocalPort 443 -Protocol TCP -Action Allow
-Write-host Enabling port for SQL Server Browser Service's 'Browse
-New-NetFirewallRule -DisplayName "Allow inbound UDP Port 1434" -Direction inbound –LocalPort 1434 -Protocol UDP -Action Allow
-New-NetFirewallRule -DisplayName "Allow outbound UDP Port 1434" -Direction outbound –LocalPort 1434 -Protocol UDP -Action Allow
+Write-Host "======== SQL Server Ports ==================="
+
+$SQLPorts = @{
+    "SQLServer default instance" = 1433;
+    "Dedicated Admin Connection" = 1434;
+    "conventional SQL Server Service Broker" = 4022;
+    "Transact-SQL Debugger/RPC" = 135;
+}
+
+foreach ($entry in $SQLPorts.GetEnumerator()) {
+    Add-FirewallRule -DisplayName $entry.Name -LocalPort $entry.Value
+}
+
+Write-Host "======== Analysis Services Ports =============="
+
+$AnalysisServicesPorts = @{
+    "SSAS Default Instance" = 2383;
+    "SQL Server Browser Service" = 2382;
+}
+
+foreach ($entry in $AnalysisServicesPorts.GetEnumerator()) {
+    Add-FirewallRule -DisplayName $entry.Name -LocalPort $entry.Value
+}
+
+Write-Host "======== Misc Applications ===================="
+
+$MiscPorts = @{
+    "HTTP" = 80;
+    "SSL" = 443;
+    "SQL Server Browser Service's 'Browse" = @{
+        "Port" = 1434;
+        "Protocol" = "UDP";
+    }
+}
+
+foreach ($entry in $MiscPorts.GetEnumerator()) {
+    if ($entry.Value -is [hashtable]) {
+        Add-FirewallRule -DisplayName $entry.Name -LocalPort $entry.Value.Port -Protocol $entry.Value.Protocol
+    } else {
+        Add-FirewallRule -DisplayName $entry.Name -LocalPort $entry.Value
+    }
+}
