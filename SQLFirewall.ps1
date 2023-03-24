@@ -1,3 +1,29 @@
+<#
+.SYNOPSIS
+This PowerShell script adds firewall rules for SQL Server, Analysis Services, and miscellaneous application ports.
+
+.DESCRIPTION
+The script creates inbound and outbound firewall rules for various SQL Server, Analysis Services, and other common application ports.
+It helps automate the process of opening the necessary ports for these services on the host machine.
+
+.PARAMETER DisplayName
+A string that represents the display name of the firewall rule.
+
+.PARAMETER LocalPort
+An integer that represents the local port number for the firewall rule.
+
+.PARAMETER Protocol
+A string that represents the protocol (TCP or UDP) for the firewall rule. Default value is "TCP".
+
+.EXAMPLE
+PS> .\AddFirewallRules.ps1
+This command runs the script with default values.
+
+.NOTES
+The script is designed for administrators and developers who need to configure firewall settings on their machines.
+
+#>
+
 function Add-FirewallRule {
     param (
         [string]$DisplayName,
