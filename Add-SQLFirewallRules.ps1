@@ -16,7 +16,7 @@ An integer that represents the local port number for the firewall rule.
 A string that represents the protocol (TCP or UDP) for the firewall rule. Default value is "TCP".
 
 .EXAMPLE
-PS> .\AddFirewallRules.ps1
+PS> .\Add-SQLFirewallRules.ps1
 This command runs the script with default values.
 
 .NOTES
